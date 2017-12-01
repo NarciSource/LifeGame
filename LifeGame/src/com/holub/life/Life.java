@@ -1,6 +1,9 @@
 package com.holub.life;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import com.holub.ui.MenuSite;
 
@@ -12,7 +15,7 @@ import com.holub.ui.MenuSite;
 
 public final class Life extends JFrame
 {	
-	private static JComponent universe;
+	private boolean editUnit=true;
 
 	public static void main( String[] arguments )
 	{	new Life();
@@ -27,9 +30,27 @@ public final class Life extends JFrame
 		MenuSite.establish( this );		//{=life.java.establish}
 
 		setDefaultCloseOperation	( EXIT_ON_CLOSE 		);
-		getContentPane().setLayout	( new BorderLayout()	);
+		getContentPane().setLayout	( new GridLayout(1,2)	);
 		getContentPane().add( Universe.instance(), BorderLayout.CENTER); //{=life.java.install}
-
+		getContentPane().add( UnitFactory.instance(), BorderLayout.CENTER);
+		
+		
+		
+		JButton button1 = new JButton("Enable Edit");
+		this.add(button1);
+		button1.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                JButton b = (JButton) e.getSource();
+                
+                editUnit = !editUnit;
+                
+                if (b.getText().equals("Enable Edit"))
+                    b.setText("Disable Edit");
+                else
+                    b.setText("Enable Edit");                
+            }
+        });
+		
 		pack();
 		setVisible( true );
 	}

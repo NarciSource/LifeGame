@@ -33,7 +33,7 @@ import com.holub.life.Storable;
  * @include /etc/license.txt
  */
 
-public final class Neighborhood implements Cell
+public class Neighborhood implements Cell
 {
 	/** Block if reading is not permitted because the grid is
 	 *  transitioning to the next state. Only one lock is
@@ -50,7 +50,7 @@ public final class Neighborhood implements Cell
 	private boolean amActive = false;
 
 	/** The actual grid of Cells contained within this neighborhood. */
-	private final Cell[][] grid;
+	protected Cell[][] grid;
 
 	/** The neighborhood is square, so gridSize is both the horizontal
 	 *  and vertical size.
@@ -62,6 +62,23 @@ public final class Neighborhood implements Cell
 	 *  not put into the grid, so you can reuse it if you like.
 	 */
 
+	private Cell activeUnit=null;
+	
+	public Cell clone() throws CloneNotSupportedException
+    {
+    	Neighborhood account = (Neighborhood)super.clone();
+    	account.grid = this.grid.clone();        	
+    	for( int row = 0; row < gridSize; ++row )
+    	{
+    		account.grid[row] = this.grid[row].clone();
+			for( int column = 0; column < gridSize; ++column )
+			{    				
+				account.grid[row][column] = (Cell) this.grid[row][column].clone();
+			}
+    	}
+        return account;
+    } 
+	
 	public Neighborhood(int gridSize, Cell prototype)
 	{
 		this.gridSize = gridSize;
@@ -70,6 +87,22 @@ public final class Neighborhood implements Cell
 		for( int row = 0; row < gridSize; ++row )
 			for( int column = 0; column < gridSize; ++column )
 				grid[row][column] = prototype.create();
+		
+		UnitBox.addListner
+		(
+			new UnitBox.Listener() {
+				
+				@Override
+				public void disactive() {
+					activeUnit = null;					
+				}
+				
+				@Override
+				public void active(Cell grid) {
+					activeUnit = grid;					
+				}
+			}
+		);
 	}
 
 	/** The "clone" method used to create copies of the current
@@ -282,14 +315,14 @@ public final class Neighborhood implements Cell
 
 		return someSubcellChangedState;
 	}
-	// The following variable is used only by the transition()
+	/* The following variable is used only by the transition()
 	// method. Since Java doesn't support static local variables,
 	// I am forced to declare it in class scope, but I deliberately
 	// don't put it up at the top of the class defintion because
 	// it's not really an attribute of the class---it's just
 	// an implemenation detail of the immediately preceding
 	// method.
-	//
+	*/
 	private static int nestingLevel = -1;
 
 
@@ -414,9 +447,23 @@ public final class Neighborhood implements Cell
 		Rectangle subcell = new Rectangle(	0, 0, pixelsPerCell,
 												  pixelsPerCell );
 
-		grid[row][column].userClicked(position, subcell); //{=Neighborhood.userClicked.call}
-		amActive = true;
-		rememberThatCellAtEdgeChangedState(row, column);
+		if(activeUnit != null)
+		{
+			try {
+				Cell d =(Cell) activeUnit.clone();
+				grid[row][column] = (Cell) activeUnit.clone();
+				
+				
+				
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}			
+		}
+		else {
+			grid[row][column].userClicked(position, subcell); //{=Neighborhood.userClicked.call}
+			amActive = true;
+			rememberThatCellAtEdgeChangedState(row, column);
+		}
 	}
 
 	public boolean isAlive()

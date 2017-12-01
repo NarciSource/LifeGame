@@ -131,4 +131,9 @@ public final class Resident implements Cell
 	{	throw new UnsupportedOperationException(
 					"May not create memento of a unitary cell");
 	}
+	
+	public Cell clone() throws CloneNotSupportedException {
+		Resident account = (Resident)super.clone();
+		return account;
+    }
 }

@@ -12,7 +12,7 @@ import com.holub.life.Storable;
  * @include /etc/license.txt
  */
 
-public interface Cell
+public interface Cell extends Cloneable
 {
 	/** Figure out the next state of the cell, given the specified
 	 *  neighbors.
@@ -160,5 +160,12 @@ public interface Cell
 		{	throw new UnsupportedOperationException(
 						"Cannot create memento of dummy block");
 		}
+		
+		public Cell clone() throws CloneNotSupportedException
+		{
+			return null;
+		}
 	};
+
+	public Cell clone() throws CloneNotSupportedException;
 }
