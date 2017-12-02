@@ -61,8 +61,6 @@ public class Neighborhood implements Cell
 	 *  clones of the prototype. The Protype is deliberately
 	 *  not put into the grid, so you can reuse it if you like.
 	 */
-
-	private Cell activeUnit=null;
 	
 	public Cell clone() throws CloneNotSupportedException
     {
@@ -87,22 +85,6 @@ public class Neighborhood implements Cell
 		for( int row = 0; row < gridSize; ++row )
 			for( int column = 0; column < gridSize; ++column )
 				grid[row][column] = prototype.create();
-		
-		UnitBox.addListner
-		(
-			new UnitBox.Listener() {
-				
-				@Override
-				public void disactive() {
-					activeUnit = null;					
-				}
-				
-				@Override
-				public void active(Cell grid) {
-					activeUnit = grid;					
-				}
-			}
-		);
 	}
 
 	/** The "clone" method used to create copies of the current
@@ -405,6 +387,7 @@ public class Neighborhood implements Cell
 
 			g = g.create();
 			g.setColor( Colors.LIGHT_ORANGE );
+			
 			g.drawRect( here.x, here.y, here.width, here.height );
 
 			if( amActive )
@@ -446,24 +429,24 @@ public class Neighborhood implements Cell
 		Point position = new Point( columnOffset, rowOffset );
 		Rectangle subcell = new Rectangle(	0, 0, pixelsPerCell,
 												  pixelsPerCell );
-
-		if(activeUnit != null)
-		{
-			try {
-				Cell d =(Cell) activeUnit.clone();
-				grid[row][column] = (Cell) activeUnit.clone();
-				
-				
-				
-			} catch (CloneNotSupportedException e) {
-				e.printStackTrace();
-			}			
-		}
-		else {
-			grid[row][column].userClicked(position, subcell); //{=Neighborhood.userClicked.call}
-			amActive = true;
-			rememberThatCellAtEdgeChangedState(row, column);
-		}
+		
+		grid[row][column].userClicked(position, subcell); //{=Neighborhood.userClicked.call}
+		amActive = true;
+		rememberThatCellAtEdgeChangedState(row, column);
+		
+	}
+	
+	public void unitClicked(Point here, Rectangle surface, Cell unit)
+	{
+		int pixelsPerCell = surface.width / gridSize ;
+		int row				= here.y     	/ pixelsPerCell ;
+		int column			= here.x     	/ pixelsPerCell ;
+		
+		try {
+			grid[row][column] = (Cell) unit.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}			
 	}
 
 	public boolean isAlive()
@@ -570,5 +553,11 @@ public class Neighborhood implements Cell
 				b.append( ((Point) i.next()).toString() + "\n" );
 			return b.toString();
 		}
+	}
+
+	@Override
+	public void unitClicked(Point point, Rectangle bounds) {
+		// TODO 자동 생성된 메소드 스텁
+		
 	}
 }

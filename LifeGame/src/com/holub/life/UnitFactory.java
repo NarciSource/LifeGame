@@ -16,6 +16,8 @@ public class UnitFactory extends JPanel {
 	private	final 			Cell 		unitBox;
 	private static	final	UnitFactory theInstance = new UnitFactory();
 	
+	private static final int  DEFAULT_GRID_WIDTH_SIZE = 4;
+	private static final int  DEFAULT_GRID_HEIGHT_SIZE = 12;
 	private static final int  DEFAULT_GRID_SIZE = 8;
 	private static final int  DEFAULT_CELL_SIZE = 8;
 	
@@ -25,7 +27,8 @@ public class UnitFactory extends JPanel {
 	{
 		unitBox = new UnitBox
 				(
-					DEFAULT_GRID_SIZE,
+					DEFAULT_GRID_WIDTH_SIZE,
+					DEFAULT_GRID_HEIGHT_SIZE,
 					new Neighborhood
 					(
 						DEFAULT_GRID_SIZE,
@@ -33,10 +36,12 @@ public class UnitFactory extends JPanel {
 					)
 				);
 		
+		System.out.println(((UnitBox) unitBox).widthInCells()+" "+((UnitBox) unitBox).heightInCells()+
+				" "+DEFAULT_CELL_SIZE);
 		final Dimension PREFERRED_SIZE =
 				new Dimension
-				(	unitBox.widthInCells() * DEFAULT_CELL_SIZE,
-					unitBox.widthInCells() * DEFAULT_CELL_SIZE
+				(	((UnitBox) unitBox).widthInCells() * DEFAULT_CELL_SIZE,
+					((UnitBox) unitBox).heightInCells() * DEFAULT_CELL_SIZE
 				);
 		
 		
@@ -59,7 +64,7 @@ public class UnitFactory extends JPanel {
 					if(editUnit)
 						unitBox.userClicked(e.getPoint(),bounds);
 					else
-						((UnitBox) unitBox).unitClicked(e.getPoint(),bounds);
+						unitBox.unitClicked(e.getPoint(),bounds);
 					
 					repaint();
 				}
@@ -67,7 +72,10 @@ public class UnitFactory extends JPanel {
 		);
 		
 	}
-	
+	public void setEditTrigger()
+	{
+		editUnit = !editUnit;
+	}
 	
 	public static UnitFactory instance()
 	{

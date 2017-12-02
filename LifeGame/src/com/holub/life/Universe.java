@@ -36,7 +36,7 @@ public class Universe extends JPanel
 	 *  to do. If it's too small, you have too many blocks to check.
 	 *  I've found that 8 is a good compromise.
 	 */
-	private static final int  DEFAULT_GRID_SIZE = 8;
+	private static final int  DEFAULT_GRID_SIZE = 12;
 
 	/** The size of the smallest "atomic" cell---a Resident object.
 	 *  This size is extrinsic to a Resident (It's passed into the
@@ -47,6 +47,9 @@ public class Universe extends JPanel
 	// The constructor is private so that the universe can be created
 	// only by an outer-class method [Neighborhood.createUniverse()].
 
+	private boolean editUnit=true;
+	private Cell 	unit=null;
+	
 	private Universe()
 	{	// Create the nested Cells that comprise the "universe." A bug
 		// in the current implementation causes the program to fail
@@ -56,7 +59,7 @@ public class Universe extends JPanel
 		outermostCell = new Neighborhood
 						(	DEFAULT_GRID_SIZE,
 							new Neighborhood
-							(	DEFAULT_GRID_SIZE,
+							(	DEFAULT_CELL_SIZE,
 								new Resident()
 							)
 						);
@@ -97,7 +100,11 @@ public class Universe extends JPanel
 				{	Rectangle bounds = getBounds();
 					bounds.x = 0;
 					bounds.y = 0;
-					outermostCell.userClicked(e.getPoint(),bounds);
+					
+					if(editUnit)
+						outermostCell.userClicked(e.getPoint(),bounds);
+					else
+						((Neighborhood)outermostCell).unitClicked(e.getPoint(),bounds,unit);
 					repaint();
 				}
 			}
@@ -153,8 +160,29 @@ public class Universe extends JPanel
 				}
 			}
 		);
+		
+		UnitBox.addListner
+		(
+			new UnitBox.Listener() {
+				
+				@Override
+				public void disactive() {
+					unit = null;					
+				}
+				
+				@Override
+				public void active(Cell grid) {
+					unit = grid;					
+				}
+			}
+		);
 	}
-
+	
+	public void setEditTrigger()
+	{
+		editUnit = !editUnit;
+	}
+	
 	/** Singleton Accessor. The Universe object itself is manufactured
 	 *  in Neighborhood.createUniverse()
 	 */

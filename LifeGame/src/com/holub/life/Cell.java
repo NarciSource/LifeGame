@@ -165,7 +165,15 @@ public interface Cell extends Cloneable
 		{
 			return null;
 		}
+
+		@Override
+		public void unitClicked(Point point, Rectangle bounds) {
+			// TODO 자동 생성된 메소드 스텁
+			
+		}
 	};
 
 	public Cell clone() throws CloneNotSupportedException;
+
+	void unitClicked(Point point, Rectangle bounds);
 }

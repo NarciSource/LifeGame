@@ -136,4 +136,8 @@ public final class Resident implements Cell
 		Resident account = (Resident)super.clone();
 		return account;
     }
+
+	@Override
+	public void unitClicked(Point point, Rectangle bounds) {
+	}
 }

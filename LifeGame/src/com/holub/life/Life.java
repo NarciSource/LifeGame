@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import com.holub.ui.MenuSite;
 
 /*******************************************************************
@@ -30,8 +32,15 @@ public final class Life extends JFrame
 		MenuSite.establish( this );		//{=life.java.establish}
 
 		setDefaultCloseOperation	( EXIT_ON_CLOSE 		);
-		getContentPane().setLayout	( new GridLayout(1,2)	);
+		getContentPane().setLayout	( new FlowLayout(FlowLayout.LEFT, 5, 5)	);
 		getContentPane().add( Universe.instance(), BorderLayout.CENTER); //{=life.java.install}
+		
+		JPanel marginPanel = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) marginPanel.getLayout();
+		flowLayout.setVgap(250);
+		flowLayout.setHgap(100);
+		getContentPane().add(marginPanel);
+		
 		getContentPane().add( UnitFactory.instance(), BorderLayout.CENTER);
 		
 		
@@ -42,7 +51,9 @@ public final class Life extends JFrame
             public void actionPerformed(ActionEvent e) {
                 JButton b = (JButton) e.getSource();
                 
-                editUnit = !editUnit;
+                Universe.instance().setEditTrigger();
+                UnitFactory.instance().setEditTrigger();
+                
                 
                 if (b.getText().equals("Enable Edit"))
                     b.setText("Disable Edit");
