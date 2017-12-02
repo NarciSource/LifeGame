@@ -1,5 +1,6 @@
 package com.holub.life;
 import java.awt.*;
+import java.io.Serializable;
 
 import com.holub.life.Storable;
 
@@ -12,7 +13,7 @@ import com.holub.life.Storable;
  * @include /etc/license.txt
  */
 
-public interface Cell extends Cloneable
+public interface Cell extends Serializable, Cloneable
 {
 	/** Figure out the next state of the cell, given the specified
 	 *  neighbors.

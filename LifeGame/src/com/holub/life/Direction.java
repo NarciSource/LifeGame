@@ -1,5 +1,7 @@
 package com.holub.life;
 
+import java.io.Serializable;
+
 /***
  *  The Direction class is used to indicate in just what way a
  *  particular Cell is unstable. If a subcell has just changed
@@ -23,7 +25,7 @@ package com.holub.life;
  * @include /etc/license.txt
  */
 
-public class Direction
+public class Direction implements Serializable
 {	private int	map = BITS_NONE;
 
 	private static final int BITS_NORTH     = 0x0001;
