@@ -16,10 +16,10 @@ public class UnitFactory extends JPanel {
 	private	final 			Cell 		unitBox;
 	private static	final	UnitFactory theInstance = new UnitFactory();
 	
-	private static final int  DEFAULT_GRID_WIDTH_SIZE = 4;
-	private static final int  DEFAULT_GRID_HEIGHT_SIZE = 12;
-	private static final int  DEFAULT_GRID_SIZE = 8;
-	private static final int  DEFAULT_CELL_SIZE = 8;
+	private static final int  LAYER1_GRID_WIDTH_SIZE = 4;
+	private static final int  LAYER1_GRID_HEIGHT_SIZE = 12;
+	private static final int  LAYER2_GRID_SIZE = 16;
+	private static final int  DEFAULT_CELL_SIZE = 5;
 	
 	private boolean editUnit=true;
 	
@@ -27,17 +27,15 @@ public class UnitFactory extends JPanel {
 	{
 		unitBox = new UnitBox
 				(
-					DEFAULT_GRID_WIDTH_SIZE,
-					DEFAULT_GRID_HEIGHT_SIZE,
+					LAYER1_GRID_WIDTH_SIZE,
+					LAYER1_GRID_HEIGHT_SIZE,
 					new Neighborhood
 					(
-						DEFAULT_GRID_SIZE,
+						LAYER2_GRID_SIZE,
 						new Resident()
 					)
 				);
 		
-		System.out.println(((UnitBox) unitBox).widthInCells()+" "+((UnitBox) unitBox).heightInCells()+
-				" "+DEFAULT_CELL_SIZE);
 		final Dimension PREFERRED_SIZE =
 				new Dimension
 				(	((UnitBox) unitBox).widthInCells() * DEFAULT_CELL_SIZE,
@@ -60,6 +58,8 @@ public class UnitFactory extends JPanel {
 					Rectangle bounds = getBounds();
 					bounds.x = 0;
 					bounds.y = 0;
+					
+				
 					
 					if(editUnit)
 						unitBox.userClicked(e.getPoint(),bounds);

@@ -1,7 +1,7 @@
 package com.holub.life;
 
 import java.io.*;
-
+import java.rmi.RemoteException;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -11,6 +11,7 @@ import com.holub.ui.MenuSite;
 
 import com.holub.life.Cell;
 import com.holub.life.Storable;
+import com.holub.remote.UnitRemoteImpl;
 import com.holub.life.Clock;
 import com.holub.life.Neighborhood;
 import com.holub.life.Resident;
@@ -36,18 +37,20 @@ public class Universe extends JPanel
 	 *  to do. If it's too small, you have too many blocks to check.
 	 *  I've found that 8 is a good compromise.
 	 */
-	private static final int  DEFAULT_GRID_SIZE = 12;
+	private static final int  LAYER1_GRID_SIZE = 32;
 
 	/** The size of the smallest "atomic" cell---a Resident object.
 	 *  This size is extrinsic to a Resident (It's passed into the
 	 *  Resident's "draw yourself" method.
 	 */
-	private static final int  DEFAULT_CELL_SIZE = 8;
+	private static final int  LAYER2_GRID_SIZE = 16;
+	
+	private static final int  DEFAULT_CELL_SIZE = 2;
 
 	// The constructor is private so that the universe can be created
 	// only by an outer-class method [Neighborhood.createUniverse()].
 
-	private boolean editUnit=true;
+	private boolean editEnable=true;
 	private Cell 	unit=null;
 	
 	private Universe()
@@ -57,9 +60,9 @@ public class Universe extends JPanel
 		// on the screen.
 
 		outermostCell = new Neighborhood
-						(	DEFAULT_GRID_SIZE,
+						(	LAYER1_GRID_SIZE,
 							new Neighborhood
-							(	DEFAULT_CELL_SIZE,
+							(	LAYER2_GRID_SIZE,
 								new Resident()
 							)
 						);
@@ -101,11 +104,8 @@ public class Universe extends JPanel
 					bounds.x = 0;
 					bounds.y = 0;
 					
-					if(editUnit)
-						outermostCell.userClicked(e.getPoint(),bounds);
-					else
-						((Neighborhood)outermostCell).unitClicked(e.getPoint(),bounds,unit);
-					repaint();
+					forwarding(editEnable, e.getPoint(), bounds, unit);
+					cellsWriting(editEnable, e.getPoint(), bounds, unit);
 				}
 			}
 		);
@@ -178,9 +178,37 @@ public class Universe extends JPanel
 		);
 	}
 	
+	public void forwarding(boolean editEnable, Point point, Rectangle bounds, Cell unit)
+	{
+		if(UnitRemoteImpl.require() == null) return;
+		
+		try {
+			UnitRemoteImpl.require().cellsWriting(editEnable, point, bounds, unit);
+		} catch (RemoteException e1) {
+			e1.printStackTrace();
+		}		
+	}
+	
+	public void cellsWriting(boolean editEnable, Point point, Rectangle bounds, Cell unit)
+	{
+		if(editEnable)
+		{
+			((Neighborhood)outermostCell).userClicked(point,bounds);
+		}
+		else
+		{
+			((Neighborhood)outermostCell).unitClicked(point,bounds,unit);
+		}
+		repaint();
+	}
+	
+	
+	
+	
+	
 	public void setEditTrigger()
 	{
-		editUnit = !editUnit;
+		editEnable = !editEnable;
 	}
 	
 	/** Singleton Accessor. The Universe object itself is manufactured
