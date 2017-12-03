@@ -78,4 +78,8 @@ public class UnitRemoteImpl extends UnicastRemoteObject implements UnitRemote {
 	public void cellsWriting(boolean editEnable, Point point, Rectangle bounds, Cell unit) throws RemoteException {
 		Universe.instance().cellsPlacement(editEnable, point, bounds, unit);
 	}
+
+	public static boolean isConnected() {
+		return (service!=null);
+	}
 }

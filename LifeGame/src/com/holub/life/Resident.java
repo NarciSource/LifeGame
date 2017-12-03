@@ -103,7 +103,8 @@ public final class Resident implements Cell
 		amAlive = !amAlive;
 	}
 
-	public void unitPlacement(Point here, Rectangle surface, Cell unit) {}
+	public void unitPlacement(Point here, Rectangle surface, Cell unit) {
+	}
 
 	public void	   clear()			{amAlive = willBeAlive = false; }
 	public boolean isAlive()		{return amAlive;			    }

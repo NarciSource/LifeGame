@@ -8,6 +8,9 @@ import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -35,8 +38,7 @@ public final class Life extends JFrame
 	private Life()
 	{	
 		super( "Startegy Game of Life. "
-					+"(c)2017 Jeong Won-Cheol. 20113560. Chung-Ang University."
-					+"<https://github.com/NarciSource/LifeGame> ~based on <http://www.holub.com>");
+					+"(c) 2017 Jeong Won-Cheol. 20113560");
 
 		try {
 			name = JOptionPane.showInputDialog("플레이어의 이름을 입력하세요.");
@@ -46,6 +48,14 @@ public final class Life extends JFrame
 			
 		} catch (UnknownHostException e) {
 			
+			e.printStackTrace();
+		}
+		
+		try {
+			LocateRegistry.createRegistry(Registry.REGISTRY_PORT);
+			JOptionPane.showMessageDialog(null, "RMI resister okay."+" port is "+Registry.REGISTRY_PORT);
+		} catch (RemoteException e) {
+			JOptionPane.showMessageDialog(null, "RMI resister fail");
 			e.printStackTrace();
 		}
 		
@@ -59,6 +69,7 @@ public final class Life extends JFrame
 		layoutInit();
 	}
 	
+	private Label mode = new Label("Single Mode");
 	private void layoutInit()
 	{
 		setDefaultCloseOperation	( EXIT_ON_CLOSE 		);
@@ -78,11 +89,11 @@ public final class Life extends JFrame
 					}
 				}
 			);
-			MenuSite.addLine(this, "Grid", "Load",		// {=Universe.load.setup}
+			MenuSite.addLine(this, "Grid", "Load",
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e)
 					{	
-						UnitFactory.instance().doLoad();
+						Universe.instance().doLoad();
 						repaint();
 					}
 				}
@@ -91,7 +102,7 @@ public final class Life extends JFrame
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e)
 					{	
-						UnitFactory.instance().doStore();
+						Universe.instance().doStore();
 					}
 				}
 			);
@@ -101,6 +112,21 @@ public final class Life extends JFrame
 			        {	
 						System.exit(0);
 			        }
+				}
+			);
+			
+			MenuSite.addLine(this, "Help", "About",
+				new ActionListener() {
+					public void actionPerformed(ActionEvent e)
+					{
+						JOptionPane.showMessageDialog(null, 
+								"Strategy LifeGame (c) 2017\n"
+								+"dev. Jeong WonCheol\n"
+								+"StudentID. 20113560\n"
+								+"Univ. Chung-Ang. Seoul, Korea\n"
+								+"gitHub: https://github.com/NarciSource/LifeGame\n"
+								+"based on: http://www.holub.com ");
+					}
 				}
 			);
 		
@@ -119,39 +145,23 @@ public final class Life extends JFrame
 		JToolBar toolbar = new JToolBar("tool bar");	
 			toolbar.setBackground(Color.LIGHT_GRAY);			
 			
-			JButton startButton = new JButton("Start");
+			JButton startButton = new JButton(new ImageIcon("img/play.png"));
+				
 				startButton.addActionListener(new ActionListener()
 				{
 					public void actionPerformed(ActionEvent e)
 					{
 						Clock.instance().startTicking(150);
+						repaint();
 					}
 				});
 			toolbar.add(startButton);
 			
 			
 			toolbar.addSeparator();
-			
-			
-			JButton editButton = new JButton("Edit");
-				editButton.addActionListener(new ActionListener()
-				{
-					public void actionPerformed(ActionEvent e)
-					{
-						editSwitch();
-		                
-		                if (editButton.getText().equals("Edit")) {
-		                	editButton.setText("Unit");
-		                }
-		                else {
-		                	editButton.setText("Edit");
-		                }
-					}
-				});
-			toolbar.add(editButton);
 						
 			
-			JButton multiButton = new JButton("Multi");
+			JButton multiButton = new JButton(new ImageIcon("img/connect.png"));
 				multiButton.addActionListener(new ActionListener()
 				{
 					public void actionPerformed(ActionEvent e)
@@ -160,15 +170,41 @@ public final class Life extends JFrame
 						String opponentName = JOptionPane.showInputDialog("상대방의 이름을 입력하세요");
 						
 						multiMode(opponentIp, opponentName);
+						
+						multiButton.setEnabled(false);
 					}
-				});
+				});				
 			toolbar.add(multiButton);
 			
-			
-			toolbar.add(Progress.instance());
-			
+			toolbar.addSeparator();
 		
-			toolbar.add(new Label("Host/IP = " + ip + "   User> " + name));
+			toolbar.add(new Label("Host/IP = " + ip + "    User = " + name));
+			
+			toolbar.add(mode);
+			
+			toolbar.addSeparator();
+			
+			
+			JButton editButton = new JButton("Edit", new ImageIcon("img/edit.png"));
+			editButton.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e)
+				{
+					editSwitch();
+	                
+	                if (editButton.getText().equals("Edit")) {
+	                	editButton.setText("Unit");
+	                }
+	                else {
+	                	editButton.setText("Edit");
+	                }
+				}
+			});
+			toolbar.add(editButton);
+		
+			
+			
+			
 		getContentPane().add(toolbar, BorderLayout.NORTH);
 		
 		
@@ -182,14 +218,16 @@ public final class Life extends JFrame
 			layeredPane.add( Universe.instance(), BorderLayout.CENTER);
 			
 			
-			JPanel marginPanel = new JPanel();
-				FlowLayout flowLayout = (FlowLayout) marginPanel.getLayout();
-				flowLayout.setVgap(250);
-				flowLayout.setHgap(50);
-			layeredPane.add(marginPanel);
+			layeredPane.add(new JPanel());
 			
 			
-			layeredPane.add(UnitFactory.instance(), BorderLayout.CENTER);
+			JLayeredPane layeredPane2 = new JLayeredPane();
+				layeredPane2.setLayout(new BorderLayout(2, 0));
+				
+				layeredPane2.add(new JLabel(new ImageIcon("img/unitbox.png")), BorderLayout.NORTH);
+				
+				layeredPane2.add(UnitFactory.instance(), BorderLayout.SOUTH);
+			layeredPane.add(layeredPane2);
 			
 		getContentPane().add(layeredPane, BorderLayout.CENTER);
 		
@@ -207,50 +245,11 @@ public final class Life extends JFrame
 	{
 		UnitRemoteImpl.duplexConnect(this.ip.getHostAddress().toString(), this.name,
 									opIp, opName);
+		
+		if(UnitRemoteImpl.isConnected())
+			mode.setText("Multi Mode");
+		else
+			mode.setText("Single Mode");
 	}
 	
-	
-	private static class Progress extends JPanel {
-		private static final Progress theInstance = new Progress();
-		
-		private final Cell grid;
-		private static final int GRID_SIZE = 16;
-		private static final int DEFAULT_CELL_SIZE = 2;
-		
-		private Progress()
-		{
-			grid = new Neighborhood
-					(	GRID_SIZE,
-						new Resident()
-					);
-			
-			final Dimension PREFERRED_SIZE =
-					new Dimension
-					(  grid.widthInCells() * DEFAULT_CELL_SIZE,
-							grid.widthInCells() * DEFAULT_CELL_SIZE
-					);
-		
-			setBackground	( Color.red	 );
-			setPreferredSize( PREFERRED_SIZE );
-			setMaximumSize	( PREFERRED_SIZE );
-			setMinimumSize	( PREFERRED_SIZE );
-			setOpaque		( true			 );
-		}
-		
-		public static Progress instance()
-		{ return theInstance;
-		}
-		
-		public void paint(Graphics g)
-		{
-			Rectangle panelBounds = getBounds();
-			Rectangle clipBounds  = g.getClipBounds();
-
-			// The panel bounds is relative to the upper-left
-			// corner of the screen. Pretend that it's at (0,0)
-			panelBounds.x = 0;
-			panelBounds.y = 0;
-			grid.redraw(g, panelBounds, true);
-		}
-	}
 }
