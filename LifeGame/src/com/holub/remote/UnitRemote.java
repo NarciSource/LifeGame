@@ -9,4 +9,5 @@ import com.holub.life.Cell;
 
 public interface UnitRemote extends Remote {
 	public void cellsWriting(boolean editEnable, Point point, Rectangle bounds, Cell unit) throws RemoteException;
+	public void connect(String ip, String name) throws RemoteException;
 }

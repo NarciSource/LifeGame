@@ -98,9 +98,12 @@ public final class Resident implements Cell
 		g.dispose();
 	}
 
-	public void userClicked(Point here, Rectangle surface)
-	{	amAlive = !amAlive;
+	public void cellPlacement(Point here, Rectangle surface)
+	{	
+		amAlive = !amAlive;
 	}
+
+	public void unitPlacement(Point here, Rectangle surface, Cell unit) {}
 
 	public void	   clear()			{amAlive = willBeAlive = false; }
 	public boolean isAlive()		{return amAlive;			    }
@@ -136,8 +139,4 @@ public final class Resident implements Cell
 		Resident account = (Resident)super.clone();
 		return account;
     }
-
-	@Override
-	public void unitClicked(Point point, Rectangle bounds) {
-	}
 }

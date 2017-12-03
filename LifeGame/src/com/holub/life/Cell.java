@@ -59,7 +59,8 @@ public interface Cell extends Serializable, Cloneable
 	 *  			rectangle of the current Cell.
 	 */
 
-	void userClicked(Point here, Rectangle surface);
+	void cellPlacement(Point here, Rectangle surface);
+	void unitPlacement(Point here, Rectangle surface, Cell unit);
 
 	/** Return true if this cell or any subcells are alive.
 	 */
@@ -167,14 +168,12 @@ public interface Cell extends Serializable, Cloneable
 			return null;
 		}
 
-		@Override
-		public void unitClicked(Point point, Rectangle bounds) {
-			// TODO 자동 생성된 메소드 스텁
-			
+		public void cellPlacement(Point point, Rectangle bounds) {			
+		}
+
+		public void unitPlacement(Point here, Rectangle surface, Cell unit) {			
 		}
 	};
 
 	public Cell clone() throws CloneNotSupportedException;
-
-	void unitClicked(Point point, Rectangle bounds);
 }

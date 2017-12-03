@@ -28,8 +28,8 @@ import com.holub.life.Resident;
  */
 
 public class Universe extends JPanel
-{	private 		final Cell  	outermostCell;
-	private static	final Universe 	theInstance = new Universe();
+{	
+	private static final Universe 	theInstance = new Universe();
 
 	/** The default height and width of a Neighborhood in cells.
 	 *  If it's too big, you'll run too slowly because
@@ -38,20 +38,22 @@ public class Universe extends JPanel
 	 *  I've found that 8 is a good compromise.
 	 */
 	private static final int  LAYER1_GRID_SIZE = 32;
+	private static final int  LAYER2_GRID_SIZE = 16;
 
 	/** The size of the smallest "atomic" cell---a Resident object.
 	 *  This size is extrinsic to a Resident (It's passed into the
 	 *  Resident's "draw yourself" method.
 	 */
-	private static final int  LAYER2_GRID_SIZE = 16;
 	
 	private static final int  DEFAULT_CELL_SIZE = 2;
 
 	// The constructor is private so that the universe can be created
 	// only by an outer-class method [Neighborhood.createUniverse()].
 
-	private boolean editEnable=true;
-	private Cell 	unit=null;
+	private 	   final Cell  	 outermostCell;
+	private 			 Cell 	 unit = Cell.DUMMY;
+	private static		 boolean editEnable = true;
+
 	
 	private Universe()
 	{	// Create the nested Cells that comprise the "universe." A bug
@@ -105,74 +107,17 @@ public class Universe extends JPanel
 					bounds.y = 0;
 					
 					forwarding(editEnable, e.getPoint(), bounds, unit);
-					cellsWriting(editEnable, e.getPoint(), bounds, unit);
+					cellsPlacement(editEnable, e.getPoint(), bounds, unit);
 				}
 			}
 		);
 
-		MenuSite.addLine( this, "Grid", "Clear",
-			new ActionListener()
-			{	public void actionPerformed(ActionEvent e)
-				{	outermostCell.clear();
-					repaint();
-				}
-			}
-		);
-
-		MenuSite.addLine			// {=Universe.load.setup}
-		(	this, "Grid", "Load",
-			new ActionListener()
-			{	public void actionPerformed(ActionEvent e)
-				{	doLoad();
-				}
-			}
-		);
-
-		MenuSite.addLine
-		(	this, "Grid", "Store",
-			new ActionListener()
-			{	public void actionPerformed(ActionEvent e)
-				{	doStore();
-				}
-			}
-		);
-
-		MenuSite.addLine
-		(	this, "Grid", "Exit",
-			new ActionListener()
-			{	public void actionPerformed(ActionEvent e)
-		        {	System.exit(0);
-		        }
-			}
-		);
-
-		Clock.instance().addClockListener //{=Universe.clock.subscribe}
-		(	new Clock.Listener()
-			{	public void tick()
-				{	if( outermostCell.figureNextState
-						   ( Cell.DUMMY,Cell.DUMMY,Cell.DUMMY,Cell.DUMMY,
-							 Cell.DUMMY,Cell.DUMMY,Cell.DUMMY,Cell.DUMMY
-						   )
-					  )
-					{	if( outermostCell.transition() )
-							refreshNow();
-					}
-				}
-			}
-		);
 		
 		UnitBox.addListner
 		(
 			new UnitBox.Listener() {
-				
-				@Override
-				public void disactive() {
-					unit = null;					
-				}
-				
-				@Override
-				public void active(Cell grid) {
-					unit = grid;					
+				public void selectedUnit(Cell transferredUnit) {
+					unit = transferredUnit;
 				}
 			}
 		);
@@ -180,7 +125,7 @@ public class Universe extends JPanel
 	
 	public void forwarding(boolean editEnable, Point point, Rectangle bounds, Cell unit)
 	{
-		if(UnitRemoteImpl.require() == null) return;
+		if(UnitRemoteImpl.require() == null) return; // Don't connect. Single mode.
 		
 		try {
 			UnitRemoteImpl.require().cellsWriting(editEnable, point, bounds, unit);
@@ -189,15 +134,15 @@ public class Universe extends JPanel
 		}		
 	}
 	
-	public void cellsWriting(boolean editEnable, Point point, Rectangle bounds, Cell unit)
+	public void cellsPlacement(boolean editEnable, Point point, Rectangle bounds, Cell unit)
 	{
 		if(editEnable)
 		{
-			((Neighborhood)outermostCell).userClicked(point,bounds);
+			outermostCell.cellPlacement(point,bounds);
 		}
 		else
 		{
-			((Neighborhood)outermostCell).unitClicked(point,bounds,unit);
+			outermostCell.unitPlacement(point,bounds,unit);
 		}
 		repaint();
 	}
@@ -206,10 +151,6 @@ public class Universe extends JPanel
 	
 	
 	
-	public void setEditTrigger()
-	{
-		editEnable = !editEnable;
-	}
 	
 	/** Singleton Accessor. The Universe object itself is manufactured
 	 *  in Neighborhood.createUniverse()
@@ -219,7 +160,7 @@ public class Universe extends JPanel
 	{	return theInstance;
 	}
 
-	private void doLoad()
+	public void doLoad()
 	{	try
 		{
 			FileInputStream in = new FileInputStream(
@@ -241,7 +182,7 @@ public class Universe extends JPanel
 		repaint();
 	}
 
-	private void doStore()
+	public void doStore()
 	{	try
 		{
 			FileOutputStream out = new FileOutputStream(
@@ -259,6 +200,27 @@ public class Universe extends JPanel
 		{	JOptionPane.showMessageDialog( null, "Write Failed!",
 					"The Game of Life", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	public void clear()
+	{
+		outermostCell.clear();
+	}
+	
+	public void tick()
+	{	
+		if( outermostCell.figureNextState
+			   ( Cell.DUMMY,Cell.DUMMY,Cell.DUMMY,Cell.DUMMY,
+				 Cell.DUMMY,Cell.DUMMY,Cell.DUMMY,Cell.DUMMY) )
+		{	
+			if( outermostCell.transition() )
+				refreshNow();
+		}
+	}
+	
+	public void editSwitch()
+	{
+		editEnable = !editEnable;
 	}
 
 	/** Override paint to ask the outermost Neighborhood
@@ -278,6 +240,8 @@ public class Universe extends JPanel
 		panelBounds.y = 0;
 		outermostCell.redraw(g, panelBounds, true);		//{=Universe.redraw1}
 	}
+	
+	
 
 	/** Force a screen refresh by queing a request on
 	 *  the Swing event queue. This is an example of the

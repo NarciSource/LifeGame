@@ -11,14 +11,14 @@ import com.holub.tools.Publisher;
 import com.holub.ui.Colors;
 
 public class UnitBox implements Cell {
-	private final int 	   gridWidthSize;
-	private final int 	   gridHeightSize;
+	private final	int		 gridWidthSize;
+	private final	int		 gridHeightSize;
 	
-	protected Cell[][] grid;
+	protected 		Cell[][] grid;	
 	
+	private 		boolean  amActive = false;
 	
-	private boolean 		amActive = false;
-	private static Publisher 		publisher = new Publisher();
+	private static	Publisher publisher = new Publisher();
 	
 	
 	public UnitBox(int gridWidthSize, int gridHeightSize, Cell prototype)
@@ -34,68 +34,51 @@ public class UnitBox implements Cell {
 	}
 	
 	
-	public void userClicked(Point here, Rectangle surface)
-	{
+	public void cellPlacement(Point here, Rectangle surface)
+	{		
+		int pixelWidthPerCell	= surface.width	/ gridWidthSize ;
+		int pixelHeightPerCell	= surface.height / gridHeightSize ;
+		int row					= here.x 		/ pixelWidthPerCell ;
+		int column				= here.y 		/ pixelHeightPerCell ;
 		
-		int pixelWidthPerCell = surface.width / gridWidthSize ;
-		int pixelHeightPerCell = surface.height / gridHeightSize ;
-		int row				= here.x / pixelWidthPerCell ;
-		int column			= here.y / pixelHeightPerCell ;
-		
-		int columnOffset		= here.y % pixelHeightPerCell ;
-		int rowOffset	= here.x % pixelWidthPerCell ;
+		int columnOffset		= here.y 		% pixelHeightPerCell ;
+		int rowOffset			= here.x 		% pixelWidthPerCell ;
 
 		Point position = new Point( rowOffset, columnOffset );
 		Rectangle subcell = new Rectangle(	0, 0, 
 				pixelWidthPerCell,	pixelHeightPerCell );
 
-		disactive();
-		grid[row][column].userClicked(position, subcell);
-	}
-	
-	
-	
-	public void unitClicked(Point here, Rectangle surface)
-	{
-		int pixelWidthPerCell = surface.width / gridWidthSize ;
-		int pixelHeightPerCell = surface.height / gridHeightSize ;
-		int row				= here.x / pixelWidthPerCell ;
-		int column			= here.y / pixelHeightPerCell ;
 		
-		active((Cell)grid[row][column]);
+		grid[row][column].cellPlacement(position, subcell);
+		selecteUnit(Cell.DUMMY);
+	}
+	
+	public void unitPlacement(Point here, Rectangle surface, Cell dummy)
+	{
+		int pixelWidthPerCell 	= surface.width / gridWidthSize ;
+		int pixelHeightPerCell 	= surface.height / gridHeightSize ;
+		int row					= here.x 		/ pixelWidthPerCell ;
+		int column				= here.y 		/ pixelHeightPerCell ;
+		
+		selecteUnit(grid[row][column]);
 	}
 	
 	
 	
 	
-	public void active(Cell grid)
+	public void selecteUnit(Cell unit)
 	{
 		publisher.publish
 		(
 			new Publisher.Distributor() {
 				
 				public void deliverTo(Object subscriber) {
-					((Listener)subscriber).active(grid);
+					((Listener)subscriber).selectedUnit(unit);
 				}
 			}
 		);
 		
-	}
-	public void disactive()
-	{
-		publisher.publish
-		(
-			new Publisher.Distributor() {
-				
-				public void deliverTo(Object subscriber) {
-					((Listener)subscriber).disactive();
-				}
-			}
-		);
-	}
-	
-	
-	
+	}	
 	
 	public static void addListner( Listener observer )
 	{
@@ -104,9 +87,11 @@ public class UnitBox implements Cell {
 	
 	public static interface Listener
 	{	
-		void active(Cell grid);
-		void disactive();
+		void selectedUnit(Cell unit);
 	}
+	
+	
+	
 	
 	@Override
 	public void redraw(Graphics g, Rectangle here, boolean drawAll) {
@@ -145,7 +130,6 @@ public class UnitBox implements Cell {
 	}
 
 
-	@Override
 	public int widthInCells() {
 		return gridWidthSize * grid[0][0].widthInCells();
 	}
@@ -157,70 +141,59 @@ public class UnitBox implements Cell {
 	@Override
 	public boolean figureNextState(Cell north, Cell south, Cell east, Cell west, Cell northeast, Cell northwest,
 			Cell southeast, Cell southwest) {
-		// TODO 자동 생성된 메소드 스텁
 		return false;
 	}
 
 
 	@Override
 	public Cell edge(int row, int column) {
-		// TODO 자동 생성된 메소드 스텁
 		return null;
 	}
 
 
 	@Override
 	public boolean transition() {
-		// TODO 자동 생성된 메소드 스텁
 		return false;
 	}
 
 
 	@Override
 	public boolean isAlive() {
-		// TODO 자동 생성된 메소드 스텁
 		return false;
 	}
 
 
 	@Override
 	public Cell create() {
-		// TODO 자동 생성된 메소드 스텁
 		return null;
 	}
 
 
 	@Override
 	public Direction isDisruptiveTo() {
-		// TODO 자동 생성된 메소드 스텁
 		return null;
 	}
 
 
 	@Override
-	public void clear() {
-		// TODO 자동 생성된 메소드 스텁
-		
+	public void clear() {		
 	}
 
 
 	@Override
 	public boolean transfer(Storable memento, Point upperLeftCorner, boolean doLoad) {
-		// TODO 자동 생성된 메소드 스텁
 		return false;
 	}
 
 
 	@Override
 	public Storable createMemento() {
-		// TODO 자동 생성된 메소드 스텁
 		return null;
 	}
 
 
 	@Override
 	public Cell clone() throws CloneNotSupportedException {
-		// TODO 자동 생성된 메소드 스텁
 		return null;
 	}
 }

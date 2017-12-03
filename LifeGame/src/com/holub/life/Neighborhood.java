@@ -47,35 +47,20 @@ public class Neighborhood implements Cell
 	 *  changed state during the last transition.
 	 */
 
-	private boolean amActive = false;
+	private 			boolean amActive = false;
 
 	/** The actual grid of Cells contained within this neighborhood. */
-	protected Cell[][] grid;
+	protected 			Cell[][] grid;
 
 	/** The neighborhood is square, so gridSize is both the horizontal
 	 *  and vertical size.
 	 */
-	private final int 	   gridSize;
+	private final 		int 	 gridSize;
 
 	/** Create a new Neigborhood containing gridSize-by-gridSize
 	 *  clones of the prototype. The Protype is deliberately
 	 *  not put into the grid, so you can reuse it if you like.
 	 */
-	
-	public Cell clone() throws CloneNotSupportedException
-    {
-    	Neighborhood account = (Neighborhood)super.clone();
-    	account.grid = this.grid.clone();        	
-    	for( int row = 0; row < gridSize; ++row )
-    	{
-    		account.grid[row] = this.grid[row].clone();
-			for( int column = 0; column < gridSize; ++column )
-			{    				
-				account.grid[row][column] = (Cell) this.grid[row][column].clone();
-			}
-    	}
-        return account;
-    } 
 	
 	public Neighborhood(int gridSize, Cell prototype)
 	{
@@ -98,6 +83,21 @@ public class Neighborhood implements Cell
 	{	return new Neighborhood(gridSize, grid[0][0]);
 	}
 
+	public Cell clone() throws CloneNotSupportedException
+    {
+    	Neighborhood account = (Neighborhood)super.clone();
+    	account.grid = this.grid.clone();        	
+    	for( int row = 0; row < gridSize; ++row )
+    	{
+    		account.grid[row] = this.grid[row].clone();
+			for( int column = 0; column < gridSize; ++column )
+			{    				
+				account.grid[row][column] = (Cell) this.grid[row][column].clone();
+			}
+    	}
+        return account;
+    } 
+	
 	/** Became stable on the last clock tick. One more refresh is
 	 *  required.
 	 */
@@ -418,9 +418,9 @@ public class Neighborhood implements Cell
 	/** Notification of a mouse click. The point is relative to the
 	 *  upper-left corner of the surface.
 	 */
-	public void userClicked(Point here, Rectangle surface)
+	public void cellPlacement(Point here, Rectangle surface)
 	{
-		int pixelsPerCell = surface.width / gridSize ;
+		int pixelsPerCell 	= surface.width / gridSize ;
 		int row				= here.y     	/ pixelsPerCell ;
 		int column			= here.x     	/ pixelsPerCell ;
 		int rowOffset		= here.y     	% pixelsPerCell ;
@@ -430,15 +430,14 @@ public class Neighborhood implements Cell
 		Rectangle subcell = new Rectangle(	0, 0, pixelsPerCell,
 												  pixelsPerCell );
 		
-		grid[row][column].userClicked(position, subcell); //{=Neighborhood.userClicked.call}
+		grid[row][column].cellPlacement(position, subcell); //{=Neighborhood.userClicked.call}
 		amActive = true;
 		rememberThatCellAtEdgeChangedState(row, column);
-		
 	}
 	
-	public void unitClicked(Point here, Rectangle surface, Cell unit)
+	public void unitPlacement(Point here, Rectangle surface, Cell unit)
 	{
-		int pixelsPerCell = surface.width / gridSize ;
+		int pixelsPerCell 	= surface.width / gridSize ;
 		int row				= here.y     	/ pixelsPerCell ;
 		int column			= here.x     	/ pixelsPerCell ;
 		
@@ -553,11 +552,5 @@ public class Neighborhood implements Cell
 				b.append( ((Point) i.next()).toString() + "\n" );
 			return b.toString();
 		}
-	}
-
-	@Override
-	public void unitClicked(Point point, Rectangle bounds) {
-		// TODO 자동 생성된 메소드 스텁
-		
 	}
 }

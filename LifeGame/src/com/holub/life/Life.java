@@ -22,105 +22,181 @@ import com.holub.ui.MenuSite;
 
 public final class Life extends JFrame
 {	
-	private boolean editUnit=true;
-	private static String name;
+	private static String 		name;
+	private static InetAddress 	ip;
 
 	public static void main( String[] arguments )
+	{
+		new Life();
+	}
+
+	private Life()
 	{	
-		
-		name = JOptionPane.showInputDialog("이름을 입력하세요.");
-		
-		UnitRemoteImpl.resister(name);
-		  
-		
-		
+		super( "Startegy Game of Life. "
+					+"(c)2017 Jeong Won-Cheol. 20113560. Chung-Ang University."
+					+"<https://github.com/NarciSource/LifeGame> ~based on <http://www.holub.com>");
+
 		try {
-			System.out.println(InetAddress.getLocalHost());
+			name = JOptionPane.showInputDialog("플레이어의 이름을 입력하세요.");
+			ip = InetAddress.getLocalHost();
+			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
 		
-		new Life();
-	
-	
+		UnitRemoteImpl.resister(name);
 		
+		Universe.instance();
+		UnitFactory.instance();
+
+		layoutInit();
 	}
-
-	private Life()
-	{	super( "The Game of Life. "
-					+"(c)2003 Allen I. Holub <http://www.holub.com>");
-
-		// Must establish the MenuSite very early in case
-		// a subcomponent puts menus on it.
-		MenuSite.establish( this );		//{=life.java.establish}
-
+	
+	private void layoutInit()
+	{
 		setDefaultCloseOperation	( EXIT_ON_CLOSE 		);
 		getContentPane().setLayout	( new BorderLayout(0,0)	);
 		
 		
+		/** Menu bar */
+		// Must establish the MenuSite very early in case
+		// a subcomponent puts menus on it.
+		MenuSite.establish( this );
+			MenuSite.addLine( this, "Grid", "Clear",
+				new ActionListener() {	
+					public void actionPerformed(ActionEvent e)
+					{	
+						Universe.instance().clear();
+						repaint();
+					}
+				}
+			);
+			MenuSite.addLine(this, "Grid", "Load",		// {=Universe.load.setup}
+				new ActionListener() {
+					public void actionPerformed(ActionEvent e)
+					{	
+						Universe.instance().doLoad();
+					}
+				}
+			);
+			MenuSite.addLine(this, "Grid", "Store",
+				new ActionListener() {
+					public void actionPerformed(ActionEvent e)
+					{	
+						Universe.instance().doStore();
+					}
+				}
+			);
+			MenuSite.addLine(this, "Grid", "Exit",
+				new ActionListener() {
+					public void actionPerformed(ActionEvent e)
+			        {	
+						System.exit(0);
+			        }
+				}
+			);
+			
+		Clock.instance().addClockListener //{=Universe.clock.subscribe}
+		(	new Clock.Listener()
+			{	public void tick()
+				{	
+					Universe.instance().tick();
+				}
+			}
+		);
+		
+		
+		/** Tool bar */
 		JToolBar toolbar = new JToolBar("tool bar");
 		getContentPane().add(toolbar, BorderLayout.NORTH);
-		toolbar.setBackground(Color.LIGHT_GRAY);
-		toolbar.add(new JButton("Start"));
-		toolbar.addSeparator();
-		toolbar.add(new JButton("Edit"));
-		
-		JButton multiButton = new JButton("Multi");
-		toolbar.add(multiButton);
-		multiButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				String ip = JOptionPane.showInputDialog("상대방의 ip");
-				String name = JOptionPane.showInputDialog("상대방의 이름");
-				
-				UnitRemoteImpl.lookup(ip, name);
-			}
+			toolbar.setBackground(Color.LIGHT_GRAY);
 			
 			
-		});
+			JButton startButton = new JButton("Start");
+				startButton.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						Clock.instance().startTicking(150);
+					}
+				});
+			toolbar.add(startButton);
+			
+			
+			toolbar.addSeparator();
+			
+			
+			JButton editButton = new JButton("Edit");
+				editButton.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						editSwitch();
+		                
+		                if (editButton.getText().equals("Edit")) {
+		                	editButton.setText("Unit");
+		                }
+		                else {
+		                	editButton.setText("Edit");
+		                }
+					}
+				});
+			toolbar.add(editButton);
+						
+			
+			JButton multiButton = new JButton("Multi");
+				multiButton.addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						String opponentIp = JOptionPane.showInputDialog("상대방의 ip를 입력하세요");
+						String opponentName = JOptionPane.showInputDialog("상대방의 이름을 입력하세요");
+						
+						multiMode(opponentIp, opponentName);
+					}
+				});
+			toolbar.add(multiButton);
+			
 		
-		
+			toolbar.add(new Label("Host/IP = " + ip + "   User> " + name));
 
 		
 		
 		
 		
+		/** Contentes */
+		JLayeredPane layeredPane = new JLayeredPane();		
+			layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.X_AXIS));		
 		
-		JLayeredPane layeredPane = new JLayeredPane();
-		getContentPane().add(layeredPane, BorderLayout.CENTER);
-		layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.X_AXIS));
-		
-		
-			layeredPane.add( Universe.instance(), BorderLayout.CENTER); //{=life.java.install}
+			
+			layeredPane.add( Universe.instance(), BorderLayout.CENTER);
+			
 			
 			JPanel marginPanel = new JPanel();
-			FlowLayout flowLayout = (FlowLayout) marginPanel.getLayout();
-			flowLayout.setVgap(250);
-			flowLayout.setHgap(50);
+				FlowLayout flowLayout = (FlowLayout) marginPanel.getLayout();
+				flowLayout.setVgap(250);
+				flowLayout.setHgap(50);
 			layeredPane.add(marginPanel);
 			
+			
 			layeredPane.add( UnitFactory.instance(), BorderLayout.CENTER);
-		
-		
-		
-		JButton button1 = new JButton("Enable Edit");
-		
-		getContentPane().add(button1,BorderLayout.EAST);
-		button1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                JButton b = (JButton) e.getSource();
-                
-                Universe.instance().setEditTrigger();
-                UnitFactory.instance().setEditTrigger();
-                
-                
-                if (b.getText().equals("Enable Edit"))
-                    b.setText("Disable Edit");
-                else
-                    b.setText("Enable Edit");                
-            }
-        });
+			
+			
+		getContentPane().add(layeredPane, BorderLayout.CENTER);
 		
 		pack();
 		setVisible( true );
+	}
+	
+	private void editSwitch()
+	{
+		Universe.instance().editSwitch();
+        UnitFactory.instance().editSwitch();
+	}
+	
+	private void multiMode(String opIp, String opName)
+	{
+		UnitRemoteImpl.duplexConnect(this.ip.getHostAddress().toString(), this.name,
+									opIp, opName);
 	}
 }
