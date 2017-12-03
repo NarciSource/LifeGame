@@ -1,9 +1,17 @@
 package com.holub.life;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import com.holub.asynch.ConditionVariable;
 import com.holub.life.Clock.Listener;
@@ -41,16 +49,8 @@ public class UnitBox implements Cell {
 		int row					= here.x 		/ pixelWidthPerCell ;
 		int column				= here.y 		/ pixelHeightPerCell ;
 		
-		int columnOffset		= here.y 		% pixelHeightPerCell ;
-		int rowOffset			= here.x 		% pixelWidthPerCell ;
-
-		Point position = new Point( rowOffset, columnOffset );
-		Rectangle subcell = new Rectangle(	0, 0, 
-				pixelWidthPerCell,	pixelHeightPerCell );
-
-		
-		grid[row][column].cellPlacement(position, subcell);
-		selecteUnit(Cell.DUMMY);
+		selecteUnit(Cell.DUMMY);		
+		Enlargement.to(grid[row][column],row,column);
 	}
 	
 	public void unitPlacement(Point here, Rectangle surface, Cell dummy)

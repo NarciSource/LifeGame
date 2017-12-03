@@ -382,7 +382,7 @@ public class Neighborhood implements Cell
 				{   grid[row][column].redraw( g, subcell, drawAll );	// {=Neighborhood.redraw3}
 				    subcell.translate( subcell.width, 0);
 				}
-				subcell.translate(-compoundWidth, subcell.height);
+				subcell.translate(-subcell.width*gridSize, subcell.height);
 			}
 
 			g = g.create();
@@ -445,7 +445,7 @@ public class Neighborhood implements Cell
 			grid[row][column] = (Cell) unit.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();
-		}			
+		}
 	}
 
 	public boolean isAlive()
@@ -489,7 +489,7 @@ public class Neighborhood implements Cell
 
 				upperLeft.translate( subcellWidth, 0);
 			}
-			upperLeft.translate(-myWidth, subcellWidth );
+			upperLeft.translate(-subcellWidth*gridSize, subcellWidth );
 		}
 		return amActive;
 	}

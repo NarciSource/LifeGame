@@ -2,6 +2,7 @@ package com.holub.life;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -9,8 +10,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.*;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class UnitFactory extends JPanel {
@@ -21,9 +26,16 @@ public class UnitFactory extends JPanel {
 	private static final int  LAYER2_GRID_SIZE = 16;
 	private static final int  DEFAULT_CELL_SIZE = 5;
 	
-	private		   final Cell	 unitBox;
+	private Cell	 unitBox;
 	private static		 boolean editEnable = true;
 	
+	private final Dimension PREFERRED_SIZE;
+	
+	public Dimension size()
+	{
+		return PREFERRED_SIZE;
+		
+	}
 	private UnitFactory()
 	{
 		unitBox = new UnitBox
@@ -37,7 +49,7 @@ public class UnitFactory extends JPanel {
 					)
 				);
 		
-		final Dimension PREFERRED_SIZE =
+		PREFERRED_SIZE =
 				new Dimension
 				(	((UnitBox) unitBox).widthInCells() * DEFAULT_CELL_SIZE,
 					((UnitBox) unitBox).heightInCells() * DEFAULT_CELL_SIZE
@@ -75,12 +87,14 @@ public class UnitFactory extends JPanel {
 		}
 		else
 		{
+			
 			unitBox.unitPlacement(point,bounds,Cell.DUMMY);
 		}
 		repaint();
 	}
 	
-	
+
+
 	
 	
 	
@@ -98,10 +112,50 @@ public class UnitFactory extends JPanel {
 	public void paint(Graphics g)
 	{
 		Rectangle panelBounds = getBounds();
-		Rectangle clipBounds  = g.getClipBounds();
 
 		panelBounds.x = 0;
 		panelBounds.y = 0;
 		unitBox.redraw(g, panelBounds, true);
+	}
+	
+	public void doStore()
+	{		
+		try {
+	        ObjectOutputStream out = new ObjectOutputStream(
+	        							new BufferedOutputStream(
+	        								new FileOutputStream("unit")
+	        							)
+	        						);
+	        		
+	        
+	        out.writeObject(unitBox);
+	        out.close();
+	        System.out.println("store ok");	        
+	        
+	        
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void doLoad()
+	{
+		try {
+	        ObjectInputStream in = new ObjectInputStream(
+	        							new BufferedInputStream(
+	        								new FileInputStream("unit")
+	        							)
+	        						);
+	         
+	        unitBox = (Cell) in.readObject();
+	        in.close();
+
+	        System.out.println("load ok");	         
+	        
+
+		}catch(IOException | ClassNotFoundException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

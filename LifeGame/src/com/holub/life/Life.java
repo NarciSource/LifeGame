@@ -3,6 +3,8 @@ package com.holub.life;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -38,9 +40,12 @@ public final class Life extends JFrame
 
 		try {
 			name = JOptionPane.showInputDialog("플레이어의 이름을 입력하세요.");
+			if(name.isEmpty()) name ="unkown";			
+			
 			ip = InetAddress.getLocalHost();
 			
 		} catch (UnknownHostException e) {
+			
 			e.printStackTrace();
 		}
 		
@@ -48,6 +53,8 @@ public final class Life extends JFrame
 		
 		Universe.instance();
 		UnitFactory.instance();
+		
+		UnitFactory.instance().doLoad();
 
 		layoutInit();
 	}
@@ -75,7 +82,8 @@ public final class Life extends JFrame
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e)
 					{	
-						Universe.instance().doLoad();
+						UnitFactory.instance().doLoad();
+						repaint();
 					}
 				}
 			);
@@ -83,7 +91,7 @@ public final class Life extends JFrame
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e)
 					{	
-						Universe.instance().doStore();
+						UnitFactory.instance().doStore();
 					}
 				}
 			);
@@ -95,7 +103,8 @@ public final class Life extends JFrame
 			        }
 				}
 			);
-			
+		
+		/** Clock */
 		Clock.instance().addClockListener //{=Universe.clock.subscribe}
 		(	new Clock.Listener()
 			{	public void tick()
@@ -107,10 +116,8 @@ public final class Life extends JFrame
 		
 		
 		/** Tool bar */
-		JToolBar toolbar = new JToolBar("tool bar");
-		getContentPane().add(toolbar, BorderLayout.NORTH);
-			toolbar.setBackground(Color.LIGHT_GRAY);
-			
+		JToolBar toolbar = new JToolBar("tool bar");	
+			toolbar.setBackground(Color.LIGHT_GRAY);			
 			
 			JButton startButton = new JButton("Start");
 				startButton.addActionListener(new ActionListener()
@@ -157,9 +164,12 @@ public final class Life extends JFrame
 				});
 			toolbar.add(multiButton);
 			
+			
+			toolbar.add(Progress.instance());
+			
 		
 			toolbar.add(new Label("Host/IP = " + ip + "   User> " + name));
-
+		getContentPane().add(toolbar, BorderLayout.NORTH);
 		
 		
 		
@@ -179,8 +189,7 @@ public final class Life extends JFrame
 			layeredPane.add(marginPanel);
 			
 			
-			layeredPane.add( UnitFactory.instance(), BorderLayout.CENTER);
-			
+			layeredPane.add(UnitFactory.instance(), BorderLayout.CENTER);
 			
 		getContentPane().add(layeredPane, BorderLayout.CENTER);
 		
@@ -198,5 +207,50 @@ public final class Life extends JFrame
 	{
 		UnitRemoteImpl.duplexConnect(this.ip.getHostAddress().toString(), this.name,
 									opIp, opName);
+	}
+	
+	
+	private static class Progress extends JPanel {
+		private static final Progress theInstance = new Progress();
+		
+		private final Cell grid;
+		private static final int GRID_SIZE = 16;
+		private static final int DEFAULT_CELL_SIZE = 2;
+		
+		private Progress()
+		{
+			grid = new Neighborhood
+					(	GRID_SIZE,
+						new Resident()
+					);
+			
+			final Dimension PREFERRED_SIZE =
+					new Dimension
+					(  grid.widthInCells() * DEFAULT_CELL_SIZE,
+							grid.widthInCells() * DEFAULT_CELL_SIZE
+					);
+		
+			setBackground	( Color.red	 );
+			setPreferredSize( PREFERRED_SIZE );
+			setMaximumSize	( PREFERRED_SIZE );
+			setMinimumSize	( PREFERRED_SIZE );
+			setOpaque		( true			 );
+		}
+		
+		public static Progress instance()
+		{ return theInstance;
+		}
+		
+		public void paint(Graphics g)
+		{
+			Rectangle panelBounds = getBounds();
+			Rectangle clipBounds  = g.getClipBounds();
+
+			// The panel bounds is relative to the upper-left
+			// corner of the screen. Pretend that it's at (0,0)
+			panelBounds.x = 0;
+			panelBounds.y = 0;
+			grid.redraw(g, panelBounds, true);
+		}
 	}
 }
