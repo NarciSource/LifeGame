@@ -37,15 +37,15 @@ public class Universe extends JPanel
 	 *  to do. If it's too small, you have too many blocks to check.
 	 *  I've found that 8 is a good compromise.
 	 */
-	private static final int  LAYER1_GRID_SIZE = 32;
-	private static final int  LAYER2_GRID_SIZE = 16;
+	private static int  gridSize;
+	private static int  unitGridSize;
 
 	/** The size of the smallest "atomic" cell---a Resident object.
 	 *  This size is extrinsic to a Resident (It's passed into the
 	 *  Resident's "draw yourself" method.
 	 */
 	
-	private static final int  DEFAULT_CELL_SIZE = 2;
+	private static int  cellSize;
 
 	// The constructor is private so that the universe can be created
 	// only by an outer-class method [Neighborhood.createUniverse()].
@@ -60,19 +60,22 @@ public class Universe extends JPanel
 		// in the current implementation causes the program to fail
 		// miserably if the overall size of the grid is too big to fit
 		// on the screen.
-
+		gridSize = 		Option.instance().UNIVERSE_GRID_SIZE();
+		unitGridSize = 	Option.instance().UNIT_GRID_SIZE();
+		cellSize = 		Option.instance().UNIVERSE_CELL_SIZE();
+		
 		outermostCell = new Neighborhood
-						(	LAYER1_GRID_SIZE,
+						(	gridSize,
 							new Neighborhood
-							(	LAYER2_GRID_SIZE,
+							(	unitGridSize,
 								new Resident()
 							)
 						);
 
 		final Dimension PREFERRED_SIZE =
 						new Dimension
-						(  outermostCell.widthInCells() * DEFAULT_CELL_SIZE,
-						   outermostCell.widthInCells() * DEFAULT_CELL_SIZE
+						(  outermostCell.widthInCells() * cellSize,
+						   outermostCell.widthInCells() * cellSize
 						);
 
 		addComponentListener

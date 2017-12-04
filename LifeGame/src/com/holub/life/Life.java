@@ -27,8 +27,8 @@ import com.holub.ui.MenuSite;
 
 public final class Life extends JFrame
 {	
-	private static String 		name;
-	private static InetAddress 	ip;
+	private String 		name;
+	private InetAddress ip;
 
 	public static void main( String[] arguments )
 	{
@@ -41,7 +41,18 @@ public final class Life extends JFrame
 					+"(c) 2017 Jeong Won-Cheol. 20113560");
 
 		try {
+			Object[] choice = {"High","Low"};
+			String sizeType = (String) JOptionPane.showInputDialog(null, "해상도를 고르세요.",
+										"옵션",JOptionPane.QUESTION_MESSAGE, null, choice, choice[0]);
+			if(sizeType == "High")
+			{
+				Option.setOption(Option.HighOption);
+			}
+			else {
+				Option.setOption(Option.LowOption);
+			}
 			name = JOptionPane.showInputDialog("플레이어의 이름을 입력하세요.");
+			
 			if(name.isEmpty()) name ="unkown";			
 			
 			ip = InetAddress.getLocalHost();
@@ -85,7 +96,7 @@ public final class Life extends JFrame
 					public void actionPerformed(ActionEvent e)
 					{	
 						Universe.instance().clear();
-						repaint();
+						Universe.instance().repaint();
 					}
 				}
 			);
@@ -94,7 +105,7 @@ public final class Life extends JFrame
 					public void actionPerformed(ActionEvent e)
 					{	
 						Universe.instance().doLoad();
-						repaint();
+						Universe.instance().repaint();
 					}
 				}
 			);
@@ -149,10 +160,13 @@ public final class Life extends JFrame
 				
 				startButton.addActionListener(new ActionListener()
 				{
+					int speed =180;
 					public void actionPerformed(ActionEvent e)
 					{
-						Clock.instance().startTicking(150);
-						repaint();
+						if(speed ==0) speed = 180;
+						else speed-=30;
+						Clock.instance().startTicking(speed);
+						Universe.instance().repaint();
 					}
 				});
 			toolbar.add(startButton);
@@ -212,10 +226,10 @@ public final class Life extends JFrame
 		
 		/** Contentes */
 		JLayeredPane layeredPane = new JLayeredPane();		
-			layeredPane.setLayout(new BoxLayout(layeredPane, BoxLayout.X_AXIS));		
+			layeredPane.setLayout(new BorderLayout());		
 		
 			
-			layeredPane.add( Universe.instance(), BorderLayout.CENTER);
+			layeredPane.add( Universe.instance(), BorderLayout.WEST);
 			
 			
 			layeredPane.add(new JPanel());
@@ -227,7 +241,7 @@ public final class Life extends JFrame
 				layeredPane2.add(new JLabel(new ImageIcon("img/unitbox.png")), BorderLayout.NORTH);
 				
 				layeredPane2.add(UnitFactory.instance(), BorderLayout.SOUTH);
-			layeredPane.add(layeredPane2);
+			layeredPane.add(layeredPane2, BorderLayout.EAST);
 			
 		getContentPane().add(layeredPane, BorderLayout.CENTER);
 		
@@ -251,5 +265,4 @@ public final class Life extends JFrame
 		else
 			mode.setText("Single Mode");
 	}
-	
 }

@@ -21,12 +21,12 @@ import javax.swing.JPanel;
 public class UnitFactory extends JPanel {
 	private static final UnitFactory theInstance = new UnitFactory();
 	
-	private static final int  LAYER1_GRID_WIDTH_SIZE = 4;
-	private static final int  LAYER1_GRID_HEIGHT_SIZE = 12;
-	private static final int  LAYER2_GRID_SIZE = 16;
-	private static final int  DEFAULT_CELL_SIZE = 5;
+	private static int  gridWidthSize;
+	private static int  gridHeightSize;
+	private static int  unitGridSize;
+	private static int  cellSize;
 	
-	private Cell	 unitBox;
+	private 			 Cell	 unitBox;
 	private static		 boolean editEnable = true;
 	
 	private final Dimension PREFERRED_SIZE;
@@ -38,21 +38,27 @@ public class UnitFactory extends JPanel {
 	}
 	private UnitFactory()
 	{
+		gridWidthSize = Option.instance().UNITFACTORY_GRID_WIDTH_SIZE();
+		gridHeightSize =Option.instance().UNITFACTORY_GRID_HEIGHT_SIZE();
+		unitGridSize = 	Option.instance().UNIT_GRID_SIZE();
+		cellSize =		Option.instance().UNITFACTORY_CELL_SIZE();
+		
+		
 		unitBox = new UnitBox
 				(
-					LAYER1_GRID_WIDTH_SIZE,
-					LAYER1_GRID_HEIGHT_SIZE,
+					gridWidthSize,
+					gridHeightSize,
 					new Neighborhood
 					(
-						LAYER2_GRID_SIZE,
+						unitGridSize,
 						new Resident()
 					)
 				);
 		
 		PREFERRED_SIZE =
 				new Dimension
-				(	((UnitBox) unitBox).widthInCells() * DEFAULT_CELL_SIZE,
-					((UnitBox) unitBox).heightInCells() * DEFAULT_CELL_SIZE
+				(	((UnitBox) unitBox).widthInCells() * cellSize,
+					((UnitBox) unitBox).heightInCells() * cellSize
 				);
 		
 		
@@ -123,7 +129,7 @@ public class UnitFactory extends JPanel {
 		try {
 	        ObjectOutputStream out = new ObjectOutputStream(
 	        							new BufferedOutputStream(
-	        								new FileOutputStream("unit")
+	        								new FileOutputStream(Option.instance().UNIT_FILE_NAME())
 	        							)
 	        						);
 	        		
@@ -143,7 +149,7 @@ public class UnitFactory extends JPanel {
 		try {
 	        ObjectInputStream in = new ObjectInputStream(
 	        							new BufferedInputStream(
-	        								new FileInputStream("unit")
+	        								new FileInputStream(Option.instance().UNIT_FILE_NAME())
 	        							)
 	        						);
 	         
