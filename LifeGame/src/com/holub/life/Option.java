@@ -23,7 +23,7 @@ public abstract class Option
 		public int 		UNIVERSE_CELL_SIZE()			{return 2;}
 		
 		public int 		UNITFACTORY_GRID_WIDTH_SIZE()	{return 4;}
-		public int 		UNITFACTORY_GRID_HEIGHT_SIZE()	{return 4;}		
+		public int 		UNITFACTORY_GRID_HEIGHT_SIZE()	{return 8;}		
 		public int 		UNITFACTORY_CELL_SIZE()			{return 5;}				
 	};
 	

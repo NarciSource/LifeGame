@@ -18,6 +18,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.holub.io.Files;
+
 public class UnitFactory extends JPanel {
 	private static final UnitFactory theInstance = new UnitFactory();
 	
@@ -87,15 +89,13 @@ public class UnitFactory extends JPanel {
 	
 	public void cellsPlacement(boolean editEnable, Point point, Rectangle bounds)
 	{
+		unitBox.cellPlacement(point,bounds,Cell.DUMMY);
+		
 		if(editEnable)
 		{
-			unitBox.cellPlacement(point,bounds);
+			((UnitBox)unitBox).editPlacement(point,bounds,Cell.DUMMY);
 		}
-		else
-		{
-			
-			unitBox.unitPlacement(point,bounds,Cell.DUMMY);
-		}
+		
 		repaint();
 	}
 	
@@ -127,15 +127,24 @@ public class UnitFactory extends JPanel {
 	public void doStore()
 	{		
 		try {
+			
+				
+				
+				
 	        ObjectOutputStream out = new ObjectOutputStream(
 	        							new BufferedOutputStream(
 	        								new FileOutputStream(Option.instance().UNIT_FILE_NAME())
 	        							)
 	        						);
-	        		
 	        
-	        out.writeObject(unitBox);
-	        out.close();
+	        Storable memento = unitBox.createMemento();
+			unitBox.transfer( memento, new Point(0,0), Cell.STORE );
+			memento.flush(out);
+
+			out.close();		
+	        
+	   //     out.writeObject(unitBox);
+	  //      out.close();
 	        System.out.println("store ok");	        
 	        
 	        
@@ -146,20 +155,27 @@ public class UnitFactory extends JPanel {
 	
 	public void doLoad()
 	{
-		try {
+		try {					
 	        ObjectInputStream in = new ObjectInputStream(
 	        							new BufferedInputStream(
 	        								new FileInputStream(Option.instance().UNIT_FILE_NAME())
 	        							)
 	        						);
 	         
-	        unitBox = (Cell) in.readObject();
-	        in.close();
+	        Storable memento = unitBox.createMemento();
+			memento.load( in );
+			unitBox.transfer( memento, new Point(0,0), Cell.LOAD );
 
-	        System.out.println("load ok");	         
+			in.close();
+			
+			
+	   //     unitBox = (Cell) in.readObject();
+	   //     in.close();
+
+	   //     System.out.println("load ok");	         
 	        
 
-		}catch(IOException | ClassNotFoundException e)
+		}catch(IOException e)
 		{
 			e.printStackTrace();
 		}

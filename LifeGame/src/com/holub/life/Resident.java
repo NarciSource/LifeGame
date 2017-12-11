@@ -98,12 +98,9 @@ public final class Resident implements Cell
 		g.dispose();
 	}
 
-	public void cellPlacement(Point here, Rectangle surface)
+	public void cellPlacement(Point here, Rectangle surface, Cell dummy)
 	{	
 		amAlive = !amAlive;
-	}
-
-	public void unitPlacement(Point here, Rectangle surface, Cell unit) {
 	}
 
 	public void	   clear()			{amAlive = willBeAlive = false; }
@@ -111,6 +108,8 @@ public final class Resident implements Cell
 	public Cell    create()			{return new Resident();			}
 	public int 	   widthInCells()	{return 1;}
 
+	public int	   level()			{return 0;}
+	
 	public Direction isDisruptiveTo()
 	{	return isStable() ? Direction.NONE : Direction.ALL ;
 	}

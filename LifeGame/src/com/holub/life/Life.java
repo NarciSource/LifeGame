@@ -113,7 +113,7 @@ public final class Life extends JFrame
 				new ActionListener() {
 					public void actionPerformed(ActionEvent e)
 					{	
-						Universe.instance().doStore();
+						UnitFactory.instance().doStore();
 					}
 				}
 			);
@@ -165,6 +165,12 @@ public final class Life extends JFrame
 					{
 						if(speed ==0) speed = 180;
 						else speed-=30;
+						
+						try {
+							UnitRemoteImpl.require().startTicking(speed);
+						} catch (RemoteException e1) {
+							e1.printStackTrace();
+						}
 						Clock.instance().startTicking(speed);
 						Universe.instance().repaint();
 					}

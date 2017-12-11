@@ -51,7 +51,7 @@ class Enlargement extends JPanel {
 					bounds.x = 0;
 					bounds.y = 0;				
 
-					grid.cellPlacement(e.getPoint(),bounds);
+					grid.cellPlacement(e.getPoint(),bounds, Cell.DUMMY);
 					
 					repaint();
 				}

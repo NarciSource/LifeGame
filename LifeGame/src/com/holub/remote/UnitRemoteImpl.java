@@ -11,6 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 import javax.swing.JOptionPane;
 
 import com.holub.life.Cell;
+import com.holub.life.Clock;
 import com.holub.life.Universe;
 
 public class UnitRemoteImpl extends UnicastRemoteObject implements UnitRemote {
@@ -67,6 +68,12 @@ public class UnitRemoteImpl extends UnicastRemoteObject implements UnitRemote {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void startTicking(int speed)
+	{
+		Clock.instance().startTicking(speed);
+		Universe.instance().repaint();
 	}
 	
 	public static UnitRemote require()

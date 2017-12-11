@@ -141,11 +141,11 @@ public class Universe extends JPanel
 	{
 		if(editEnable)
 		{
-			outermostCell.cellPlacement(point,bounds);
+			outermostCell.cellPlacement(point,bounds,Cell.DUMMY);
 		}
 		else
 		{
-			outermostCell.unitPlacement(point,bounds,unit);
+			outermostCell.cellPlacement(point,bounds,unit);
 		}
 		repaint();
 	}

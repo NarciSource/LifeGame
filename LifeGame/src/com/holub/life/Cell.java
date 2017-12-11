@@ -59,8 +59,7 @@ public interface Cell extends Serializable, Cloneable
 	 *  			rectangle of the current Cell.
 	 */
 
-	void cellPlacement(Point here, Rectangle surface);
-	void unitPlacement(Point here, Rectangle surface, Cell unit);
+	void cellPlacement(Point here, Rectangle surface, Cell unit);
 
 	/** Return true if this cell or any subcells are alive.
 	 */
@@ -70,6 +69,8 @@ public interface Cell extends Serializable, Cloneable
 	 */
 	int widthInCells();
 
+	
+	int level();
 	/** Return a fresh (newly created) object identical to yourself
 	 *  in content.
 	 */
@@ -168,10 +169,11 @@ public interface Cell extends Serializable, Cloneable
 			return null;
 		}
 
-		public void cellPlacement(Point point, Rectangle bounds) {			
+		public void cellPlacement(Point point, Rectangle bounds, Cell unit) {			
 		}
 
-		public void unitPlacement(Point here, Rectangle surface, Cell unit) {			
+		public int level() {
+			return -32;
 		}
 	};
 

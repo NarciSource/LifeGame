@@ -56,6 +56,7 @@ public class Neighborhood implements Cell
 	 *  and vertical size.
 	 */
 	private final 		int 	 gridSize;
+	private final		int		 level;
 
 	/** Create a new Neigborhood containing gridSize-by-gridSize
 	 *  clones of the prototype. The Protype is deliberately
@@ -70,8 +71,15 @@ public class Neighborhood implements Cell
 		for( int row = 0; row < gridSize; ++row )
 			for( int column = 0; column < gridSize; ++column )
 				grid[row][column] = prototype.create();
+		
+		level = grid[0][0].level() +1;
 	}
 
+	public int level()
+	{
+		return level;
+	}
+	
 	/** The "clone" method used to create copies of the current
 	 *  neighborhood. This method is called from the containing
 	 *  neighborhood's constructor. (The current neighborhood
@@ -418,7 +426,7 @@ public class Neighborhood implements Cell
 	/** Notification of a mouse click. The point is relative to the
 	 *  upper-left corner of the surface.
 	 */
-	public void cellPlacement(Point here, Rectangle surface)
+	public void cellPlacement(Point here, Rectangle surface, Cell unit)
 	{
 		int pixelsPerCell 	= surface.width / gridSize ;
 		int row				= here.y     	/ pixelsPerCell ;
@@ -430,24 +438,22 @@ public class Neighborhood implements Cell
 		Rectangle subcell = new Rectangle(	0, 0, pixelsPerCell,
 												  pixelsPerCell );
 		
-		grid[row][column].cellPlacement(position, subcell); //{=Neighborhood.userClicked.call}
+		if(grid[row][column].level() == unit.level())
+		{
+			try {
+				grid[row][column] = (Cell) unit.clone();
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+			}
+		}
+		else {
+			grid[row][column].cellPlacement(position, subcell, unit);
+		}
+		
 		amActive = true;
 		rememberThatCellAtEdgeChangedState(row, column);
 	}
 	
-	public void unitPlacement(Point here, Rectangle surface, Cell unit)
-	{
-		int pixelsPerCell 	= surface.width / gridSize ;
-		int row				= here.y     	/ pixelsPerCell ;
-		int column			= here.x     	/ pixelsPerCell ;
-		
-		try {
-			grid[row][column] = (Cell) unit.clone();
-		} catch (CloneNotSupportedException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public boolean isAlive()
 	{	return true;
 	}
